@@ -6,6 +6,8 @@ $Query = $mysqli->query($Sql);
 
 $Events = array();
 
+file_put_contents($_SERVER['DOCUMENT_ROOT'] . "/log.txt", "");
+
 while($Read = $Query->fetch_assoc()) {
     $Status = "";
 
@@ -36,6 +38,9 @@ while($Read = $Query->fetch_assoc()) {
         "Status" => $Status,
         "Event" => $Read["Event"]
     );
+
+    $LogLine = "{$Read["Date"]} | IP: {$Read["Ip"]} | Time: {$Read["TimeOnline"]} | Status: {$Status} | Event: {$Read["Event"]}" . PHP_EOL;
+    file_put_contents($_SERVER['DOCUMENT_ROOT'] . "/log.txt", $LogLine, FILE_APPEND);
     
     array_push($Events, $Event);
 }
