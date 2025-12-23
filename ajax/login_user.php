@@ -15,6 +15,22 @@
 	
 	if($id != -1) {
 		$_SESSION['user'] = $id;
+
+		$Ip = $_SERVER['REMOTE_ADDR'];
+		$DateStart = date("Y-m-d H:i:s");
+
+		$Sql = "INSERT INTO `session`(`IdUser`, `Ip`, `DateStart`, `DateNow`) VALUES ({$id}, '{$Ip}', '{$DateStart}', '{$DateStart}')";
+		$mysqli->query(query: $Sql);
+
+		$Sql = "SELECT `Id` FROM `session` WHERE `DateStart` = '{$DateStart}';";
+		$Query = $mysqli->query(query: $Sql);
+		$Read = $Query->fetch_assoc();
+		$_SESSION["IdSession"] = $Read['Id'];
+
+		$Sql = "INSERT INTO".
+		"`logs`(`Ip`, `IdUser`, `Date`, `TimeOnline`, `Event`)". 
+		"VALUES ('{$Ip}', '{$id}', '{$DateStart}', '00:00:00', 'Пользователь {$login} авторизовался.')";
+		$Query = $mysqli->query(query: $Sql);
 	}
 	echo md5(md5($id));
 ?>

@@ -21,7 +21,7 @@
 	<head> 
 		<script src="https://code.jquery.com/jquery-1.8.3.js"></script>
 		<meta charset="utf-8">
-		<title> Admin панель </title>
+		<title> Журнал событий </title>
 		
 		<link rel="stylesheet" href="style.css">
 	</head>
@@ -41,25 +41,17 @@
 			<div class="content">
 				<input type="button" class="button" value="Выйти" onclick="logout()"/>
 				
-				<div class="name">Административная панель</div>
-			
-				Административная панель служит для создания, редактирования и удаления записей на сайте.
+				<div class="name">Журнал событий</div>
 
-				<?php
-					$Sql = "SELECT * FROM `session` WHERE `IdUser` = {$_SESSION["user"]} ORDER BY `DateStart` DESC;";
-					$Query = $mysqli->query($Sql);
-
-					if($Query->num_rows > 1) {
-						$Read = $Query->fetch_assoc();
-						$Read = $Query->fetch_assoc();
-
-						$TimeEnd = strtotime($Read["DateNow"]);
-						$TimeNow = time();
-
-						$TimeDelta = round(($TimeNow - $TimeEnd) / 60);
-						echo "<br>Последняя активная сессия была: {$TimeDelta} минут назад";
-					}
-				?>
+                <table border="1">
+                    <tr>
+                        <td style="width: 200px;">Дата и время</td>
+                        <td style="width: 200px;">IP пользователя</td>
+                        <td style="width: 200px;">Время в сети</td>
+                        <td style="width: 200px;">Статус</td>
+                        <td>Произошедшее событие</td>
+                    </tr>
+                </table>
 			
 				<div class="footer">
 					© КГАПОУ "Авиатехникум", 2020
@@ -70,7 +62,46 @@
 		</div>
 		
 		<script>
-			function logout() {
+        GetEvents();
+
+        function GetEvents() {
+            $.ajax({
+                url         : 'ajax/events/get.php',
+                type        : 'POST',
+                data        : null,
+                cache       : false,
+                dataType    : 'html',
+                processData : false,
+                contentType : false,
+            
+                success: GetEventsAjax,
+
+                error: function() {
+                    console.log('Системная ошибка!');
+                }
+            });
+        }
+
+        function GetEventsAjax(_data) {
+            console.log(_data);
+
+            let $Table = $("table > tbody");
+            let Events = JSON.parse(_data);
+
+            Events.forEach((Event) => {
+                $Table.append(`
+                    <tr>
+                        <td>${Event["Date"]}</td>
+                        <td>${Event["Ip"]}</td>
+                        <td>${Event["TimeOnline"]}</td>
+                        <td>${Event["Status"]}</td>
+                        <td style="text-align: left;">${Event["Event"]}</td>
+                    </tr>
+                `);
+            });
+        }
+
+        function logout() {
 				$.ajax({
 					url         : 'ajax/logout.php',
 					type        : 'POST', // важно!
@@ -87,6 +118,6 @@
 					}
 				});
 			}
-		</script>
+        </script>
 	</body>
 </html>

@@ -14,6 +14,7 @@
 		}
  	} else header("Location: login.php");
 	
+	include("./settings/session.php");
 ?>
 <!DOCTYPE HTML>
 <html>
@@ -52,6 +53,21 @@
 					<br>Ваш идентификатор:
 					<?php
 						echo $user_to_read[0];
+					?>
+					<?php
+						$Sql = "SELECT * FROM `session` WHERE `IdUser` = {$_SESSION["user"]} ORDER BY `DateStart` DESC;";
+						$Query = $mysqli->query($Sql);
+
+						if($Query->num_rows > 1) {
+							$Read = $Query->fetch_assoc();
+							$Read = $Query->fetch_assoc();
+
+							$TimeEnd = strtotime($Read["DateNow"]);
+							$TimeNow = time();
+
+							$TimeDelta = round(($TimeNow - $TimeEnd) / 60);
+							echo "<br>Последняя активная сессия была: {$TimeDelta} минут назад";
+						}
 					?>
 				</div>
 			
