@@ -46,25 +46,23 @@
 				Административная панель служит для создания, редактирования и удаления записей на сайте.
 
 				<?php
-				$Sql = "SELECT * FROM `session` WHERE `IdUser` = {$_SESSION["user"]} ORDER BY `DateStart` DESC LIMIT 1, 1;";
-				$Query = $mysqli->query($Sql);
+				$SqlLastSession = "SELECT * FROM `session` WHERE `IdUser` = {$_SESSION["user"]} ORDER BY `DateStart` DESC LIMIT 1, 1;";
+				$QueryLastSession = $mysqli->query($SqlLastSession);
 
-				if($Query->num_rows > 0) {
-					$Read = $Query->fetch_assoc();
+				if($QueryLastSession->num_rows > 0) {
+					$LastSess = $QueryLastSession->fetch_assoc();
 
-					$TimeEnd = strtotime($Read["DateNow"]);
-					$TimeNow = time();
+					$TimeStart = strtotime($LastSess["DateStart"]);
+					$TimeEnd = strtotime($LastSess["DateNow"]);
 
-					$TimeDelta = round(($TimeNow - $TimeEnd) / 60);
-					
-					if ($TimeDelta < 60) {
-						echo "<div class='user-status'>Последняя активность: {$TimeDelta} мин. назад</div>";
-					} else {
-						$Hours = floor($TimeDelta / 60);
-						echo "<div class='user-status'>Последняя активность: {$Hours} ч. назад</div>";
-					}
+					$Diff = $TimeEnd - $TimeStart;
+
+					$Duration = gmdate("H:i:s", $Diff);
+
+					echo "<hr>";
+					echo "Продолжительность вашего последнего визита составила: <b>{$Duration}</b>";
 				} else {
-					echo "<div class='user-status'>Это ваша первая сессия</div>";
+					echo "<hr>Это ваш первый визит в систему!";
 				}
 				?>
 

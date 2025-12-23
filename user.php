@@ -44,28 +44,36 @@
 				<input type="button" class="button" value="Выйти" onclick="logout()"/>
 				<div class="name" style="padding-bottom: 0px;">Личный кабинет</div>
 				<div class="description">Добро пожаловать: 
-					<?php
-					$Sql = "SELECT * FROM `session` WHERE `IdUser` = {$_SESSION["user"]} ORDER BY `DateStart` DESC LIMIT 1, 1;";
-					$Query = $mysqli->query($Sql);
-
-					if($Query->num_rows > 0) {
-						$Read = $Query->fetch_assoc();
-
-						$TimeEnd = strtotime($Read["DateNow"]);
-						$TimeNow = time();
-
-						$TimeDelta = round(($TimeNow - $TimeEnd) / 60);
+				<?php
+						$user_to_query = $mysqli->query("SELECT * FROM `users` WHERE `id` = ".$_SESSION['user']);
+						$user_to_read = $user_to_query->fetch_row();
 						
-						if ($TimeDelta < 60) {
-							echo "<div class='user-status'>Последняя активность: {$TimeDelta} мин. назад</div>";
-						} else {
-							$Hours = floor($TimeDelta / 60);
-							echo "<div class='user-status'>Последняя активность: {$Hours} ч. назад</div>";
-						}
+						echo $user_to_read[1];
+					?>
+					<br>Ваш идентификатор:
+					<?php
+						echo $user_to_read[0];
+					?>
+					<?php
+					$SqlLastSession = "SELECT * FROM `session` WHERE `IdUser` = {$_SESSION["user"]} ORDER BY `DateStart` DESC LIMIT 1, 1;";
+					$QueryLastSession = $mysqli->query($SqlLastSession);
+
+					if($QueryLastSession->num_rows > 0) {
+						$LastSess = $QueryLastSession->fetch_assoc();
+
+						$TimeStart = strtotime($LastSess["DateStart"]);
+						$TimeEnd = strtotime($LastSess["DateNow"]);
+
+						$Diff = $TimeEnd - $TimeStart;
+
+						$Duration = gmdate("H:i:s", $Diff);
+
+						echo "<hr>";
+						echo "Продолжительность вашего последнего визита составила: <b>{$Duration}</b>";
 					} else {
-						echo "<div class='user-status'>Это ваша первая сессия</div>";
+						echo "<hr>Это ваш первый визит в систему!";
 					}
-				?>
+					?>
 				</div>
 			
 				<div class="footer">
