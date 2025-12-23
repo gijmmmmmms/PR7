@@ -25,5 +25,7 @@ $Sql = "INSERT INTO ".
        "VALUES ('{$Ip}', {$IdUser}, '{$Date}', '{$TimeDelta}', 'Пользователь {$Login} покинул этот мир.')";
 $mysqli->query($Sql);
 
+echo ($Sql);
+
 session_destroy();
 ?>

@@ -9,38 +9,37 @@
 	
 	$id = -1;
 	if($user_read = $query_user->fetch_row()) {
-		// создаём новый пароль
 		$id = $user_read[0];
 	}
 	
 	function PasswordGeneration() {
-		// создаём пароль
-		$chars="qazxswedcvfrtgbnhyujmkiolp1234567890QAZXSWEDCVFRTGBNHYUJMKIOLP"; // матрица
-		$max=10; // количество
-		$size=StrLen($chars)-1; // Определяем количество символов в $chars
+		$chars="qazxswedcvfrtgbnhyujmkiolp1234567890QAZXSWEDCVFRTGBNHYUJMKIOLP";
+		$max=10;
+		$size=StrLen($chars)-1;
 		$password="";
-		
 		while($max--) {
 			$password.=$chars[rand(0,$size)];
 		}
-		
 		return $password;
 	}
 	
-	if($id != 0) {
-		//обновляем пароль
-		$password = PasswordGeneration();;
-		// проверяем не используется ли пароль 
-		$query_password = $mysqli->query("SELECT * FROM `users` WHERE `password`= '".md5($password)."';");
+	if($id != -1) {
+		$password = PasswordGeneration();
+
+		$query_password = $mysqli->query("SELECT * FROM `users` WHERE `password`= '".$password."';");
 		while($password_read = $query_password->fetch_row()) {
-			// создаём новый пароль
 			$password = PasswordGeneration();
 		}
-		// обновляем пароль
-		$mysqli->query("UPDATE `users` SET `password`='".md5($password)."' WHERE `login` = '".$login."'");
-		// отсылаем на почту
-		//mail($login, 'Безопасность web-приложений КГАПОУ "Авиатехникум"', "Ваш пароль был только что изменён. Новый пароль: ".$password);
+
+		$mysqli->query("UPDATE `users` SET `password`='".$password."' WHERE `login` = '".$login."'");
+
+		$Ip = $_SERVER['REMOTE_ADDR'];
+		$Date = date("Y-m-d H:i:s");
+
+		$SqlLog = "INSERT INTO `logs` (`Ip`, `IdUser`, `Date`, `TimeOnline`, `Event`) ".
+		          "VALUES ('{$Ip}', {$id}, '{$Date}', '00:00:00', 'Пользователь {$login} успешно восстановил пароль.')";
+		$mysqli->query($SqlLog);
+
+		echo("Ваш пароль был только что изменён. Новый пароль: ".$password);
 	}
-	
-	echo $id;
 ?>
