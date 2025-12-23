@@ -46,19 +46,26 @@
 				Административная панель служит для создания, редактирования и удаления записей на сайте.
 
 				<?php
-					$Sql = "SELECT * FROM `session` WHERE `IdUser` = {$_SESSION["user"]} ORDER BY `DateStart` DESC;";
-					$Query = $mysqli->query($Sql);
+				$Sql = "SELECT * FROM `session` WHERE `IdUser` = {$_SESSION["user"]} ORDER BY `DateStart` DESC LIMIT 1, 1;";
+				$Query = $mysqli->query($Sql);
 
-					if($Query->num_rows > 1) {
-						$Read = $Query->fetch_assoc();
-						$Read = $Query->fetch_assoc();
+				if($Query->num_rows > 0) {
+					$Read = $Query->fetch_assoc();
 
-						$TimeEnd = strtotime($Read["DateNow"]);
-						$TimeNow = time();
+					$TimeEnd = strtotime($Read["DateNow"]);
+					$TimeNow = time();
 
-						$TimeDelta = round(($TimeNow - $TimeEnd) / 60);
-						echo "<br>Последняя активная сессия была: {$TimeDelta} минут назад";
+					$TimeDelta = round(($TimeNow - $TimeEnd) / 60);
+					
+					if ($TimeDelta < 60) {
+						echo "<div class='user-status'>Последняя активность: {$TimeDelta} мин. назад</div>";
+					} else {
+						$Hours = floor($TimeDelta / 60);
+						echo "<div class='user-status'>Последняя активность: {$Hours} ч. назад</div>";
 					}
+				} else {
+					echo "<div class='user-status'>Это ваша первая сессия</div>";
+				}
 				?>
 
 				<hr><a href="logs.php">Журнал событий</a><br>

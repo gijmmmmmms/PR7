@@ -45,30 +45,27 @@
 				<div class="name" style="padding-bottom: 0px;">Личный кабинет</div>
 				<div class="description">Добро пожаловать: 
 					<?php
-						$user_to_query = $mysqli->query("SELECT * FROM `users` WHERE `id` = ".$_SESSION['user']);
-						$user_to_read = $user_to_query->fetch_row();
+					$Sql = "SELECT * FROM `session` WHERE `IdUser` = {$_SESSION["user"]} ORDER BY `DateStart` DESC LIMIT 1, 1;";
+					$Query = $mysqli->query($Sql);
+
+					if($Query->num_rows > 0) {
+						$Read = $Query->fetch_assoc();
+
+						$TimeEnd = strtotime($Read["DateNow"]);
+						$TimeNow = time();
+
+						$TimeDelta = round(($TimeNow - $TimeEnd) / 60);
 						
-						echo $user_to_read[1];
-					?>
-					<br>Ваш идентификатор:
-					<?php
-						echo $user_to_read[0];
-					?>
-					<?php
-						$Sql = "SELECT * FROM `session` WHERE `IdUser` = {$_SESSION["user"]} ORDER BY `DateStart` DESC;";
-						$Query = $mysqli->query($Sql);
-
-						if($Query->num_rows > 1) {
-							$Read = $Query->fetch_assoc();
-							$Read = $Query->fetch_assoc();
-
-							$TimeEnd = strtotime($Read["DateNow"]);
-							$TimeNow = time();
-
-							$TimeDelta = round(($TimeNow - $TimeEnd) / 60);
-							echo "<br>Последняя активная сессия была: {$TimeDelta} минут назад";
+						if ($TimeDelta < 60) {
+							echo "<div class='user-status'>Последняя активность: {$TimeDelta} мин. назад</div>";
+						} else {
+							$Hours = floor($TimeDelta / 60);
+							echo "<div class='user-status'>Последняя активность: {$Hours} ч. назад</div>";
 						}
-					?>
+					} else {
+						echo "<div class='user-status'>Это ваша первая сессия</div>";
+					}
+				?>
 				</div>
 			
 				<div class="footer">
